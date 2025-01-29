@@ -11,6 +11,7 @@ public class Counter : MonoBehaviour
 
     private CounterEvents _events;
 
+    private bool _isHolding = false;
     private bool _isPressing;
 
     private void Start()
@@ -24,6 +25,9 @@ public class Counter : MonoBehaviour
     {
         if (_slider.value <= 0)
             _endScreen.SetActive(true);
+
+        if (_isHolding)
+            TryAddCount(0.05f);
     }
 
     private IEnumerator CountDown(float amount, float time)
@@ -54,9 +58,14 @@ public class Counter : MonoBehaviour
     {
         _isPressing = true;
 
+        _events.ButtonPress();
+
         _slider.value += amount;
         yield return new WaitForSeconds(time);
 
         _isPressing = false;
     }
+
+    public void StartHold() => _isHolding = true;
+    public void StopHold() => _isHolding = false;
 }

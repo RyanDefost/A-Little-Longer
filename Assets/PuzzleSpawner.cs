@@ -4,11 +4,21 @@ using UnityEngine;
 public class PuzzleSpawner : MonoBehaviour
 {
     [SerializeField] List<Sprite> _sprites;
-    [SerializeField] Texture2D _spriteTexture;
+    [SerializeField] List<Texture2D> _spriteTexture;
+    private int _currentPuzzle = 0;
+
+    public List<GameObject> CurrentPieces = new List<GameObject>();
     [Space]
     [SerializeField] GameObject _basePuzzlePiece;
     void Start()
     {
+        SetPuzzle();
+    }
+
+    private void SetPuzzle()
+    {
+        CurrentPieces.Clear();
+
         GetSprites();
 
         for (int i = 0; i < _sprites.Count; i++)
@@ -20,13 +30,13 @@ public class PuzzleSpawner : MonoBehaviour
             var randomPosition = new Vector3(randomXpos, randomYpos, 0);
             _basePuzzlePiece.transform.position = randomPosition;
 
-            Instantiate(_basePuzzlePiece);
+            CurrentPieces.Add(Instantiate(_basePuzzlePiece));
         }
     }
 
     private void GetSprites()
     {
-        Object[] data = Resources.LoadAll("WeirdClock");
+        Object[] data = Resources.LoadAll(_spriteTexture[_currentPuzzle].name);
         if (data != null)
         {
             foreach (Object obj in data)
@@ -37,5 +47,31 @@ public class PuzzleSpawner : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void DestroyPieces()
+    {
+        foreach (var item in CurrentPieces)
+        {
+            Destroy(item);
+        }
+
+        _sprites.Clear();
+    }
+
+    public void NextPuzzle()
+    {
+        if (_currentPuzzle < _spriteTexture.Count - 1)
+        {
+            _currentPuzzle++;
+        }
+        else
+        {
+            _currentPuzzle = 0;
+        }
+        Debug.Log(_spriteTexture.Count);
+        Debug.Log(_currentPuzzle);
+        DestroyPieces();
+        SetPuzzle();
     }
 }
