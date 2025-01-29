@@ -16,4 +16,6 @@ public class ScoreBoard : MonoBehaviour
         _score++;
         _text.text = "SCORE: " + _score;
     }
+
+    public int GetScore() => _score;
 }

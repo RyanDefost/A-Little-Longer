@@ -10,8 +10,12 @@ public class PuzzleSpawner : MonoBehaviour
     public List<GameObject> CurrentPieces = new List<GameObject>();
     [Space]
     [SerializeField] GameObject _basePuzzlePiece;
+
+    private ScoreBoard _scoreBoard;
     void Start()
     {
+        _scoreBoard = FindAnyObjectByType<ScoreBoard>();
+
         SetPuzzle();
     }
 
@@ -25,8 +29,8 @@ public class PuzzleSpawner : MonoBehaviour
         {
             _basePuzzlePiece.GetComponent<SpriteRenderer>().sprite = _sprites[i];
 
-            var randomXpos = Random.Range(-5f, 5f);
-            var randomYpos = Random.Range(-2.5f, 2.5f);
+            var randomXpos = Random.Range(-8f, -2.5f);
+            var randomYpos = Random.Range(-3.5f, 3.5f);
             var randomPosition = new Vector3(randomXpos, randomYpos, 0);
             _basePuzzlePiece.transform.position = randomPosition;
 
@@ -61,6 +65,11 @@ public class PuzzleSpawner : MonoBehaviour
 
     public void NextPuzzle()
     {
+        if (!CheckPiecePlaced())
+            return;
+
+        _scoreBoard.updateText();
+
         if (_currentPuzzle < _spriteTexture.Count - 1)
         {
             _currentPuzzle++;
@@ -73,5 +82,15 @@ public class PuzzleSpawner : MonoBehaviour
         Debug.Log(_currentPuzzle);
         DestroyPieces();
         SetPuzzle();
+    }
+
+    private bool CheckPiecePlaced()
+    {
+        foreach (var item in CurrentPieces)
+        {
+            if (item.transform.position.x < -2)
+                return false;
+        }
+        return true;
     }
 }
