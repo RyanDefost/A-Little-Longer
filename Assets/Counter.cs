@@ -6,34 +6,39 @@ public class Counter : MonoBehaviour
 {
     [SerializeField] private GameObject _endScreen;
     [SerializeField] private Slider _slider;
-    private float _sliderValue = 0;
-    private float _IncreaseAmount = 10;
+    private float _sliderValue = 1;
+    private float _IncreaseAmount = 40;
 
     private CounterEvents _events;
+    private FMODUnity.StudioEventEmitter _emitter;
 
+    private bool _isHolding = false;
     private bool _isPressing;
 
     private void Start()
     {
+        _emitter = FindAnyObjectByType<FMODUnity.StudioEventEmitter>();
         _events = gameObject.GetComponent<CounterEvents>();
 
-        StartCoroutine(CountDown(0.01f, 1f));
+        StartCoroutine(CountDown(-0.01f, 1f));
     }
 
     private void Update()
     {
-        if (_slider.value <= 0)
+        _emitter.SetParameter("meter", _slider.value);
+
+        if (_slider.value >= 1)
             _endScreen.SetActive(true);
     }
 
     private IEnumerator CountDown(float amount, float time)
     {
-        while (_slider.value <= 1)
+        while (_slider.value >= 0)
         {
             if (_events.PressAmount > _IncreaseAmount)
             {
-                amount += 0.01f;
-                _IncreaseAmount += 10;
+                amount -= 0.01f;
+                _IncreaseAmount += 40;
             }
 
             _slider.value -= amount;
@@ -52,11 +57,12 @@ public class Counter : MonoBehaviour
 
     public IEnumerator AddCounter(float amount, float time)
     {
-        _isPressing = true;
+        _events.ButtonPress();
 
         _slider.value += amount;
         yield return new WaitForSeconds(time);
-
-        _isPressing = false;
     }
+
+    public void StartHold() => _isHolding = true;
+    public void StopHold() => _isHolding = false;
 }
